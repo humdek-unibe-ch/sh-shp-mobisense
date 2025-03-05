@@ -16,19 +16,21 @@ INSERT IGNORE INTO `acl_groups` (`id_groups`, `id_pages`, `acl_select`, `acl_ins
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_server_ip', get_field_type_id('text'), '0');
 -- add new filed `mobisense_ssh_port` from type number
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_ssh_port', get_field_type_id('number'), '0');
--- add new filed `mobisense_ssh_user` from type JSON
+-- add new filed `mobisense_ssh_user` from type text
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_ssh_user', get_field_type_id('text'), '0');
--- add new filed `mobisense_ssh_key` from type JSON
-INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_pull_data', get_field_type_id('password'), '0');
--- add new filed `mobisense_db_name` from type JSON
+-- add new filed `mobisense_ssh_key` from type password
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_ssh_key', get_field_type_id('password'), '0');
+-- add new filed `mobisense_db_name` from type text
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_db_name', get_field_type_id('text'), '0');
--- add new filed `mobisense_db_port` from type JSON
+-- add new filed `mobisense_db_port` from type number
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_db_port', get_field_type_id('number'), '0');
--- add new filed `mobisense_db_user` from type JSON
+-- add new filed `mobisense_db_user` from type text
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_db_user', get_field_type_id('text'), '0');
--- add new filed `mobisense_db_password` from type JSON
+-- add new filed `mobisense_local_host` from type text
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_local_host', get_field_type_id('text'), '0');
+-- add new filed `mobisense_db_password` from type password
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_db_password', get_field_type_id('password'), '0');
--- add new filed `mobisense_pull_data` from type JSON
+-- add new filed `mobisense_pull_data` from type checkbox
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_pull_data', get_field_type_id('checkbox'), '0');
 
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_server_ip'), NULL, 'Mobisense server IP');
@@ -40,6 +42,7 @@ INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_db_user'), NULL, 'Mobisense database user');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_db_password'), NULL, 'Mobisense database password');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_pull_data'), NULL, 'Mobisense pull data - if enabled the job will pull the data from mobisense; if disabled the job will skip this step');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_local_host'), NULL, 'Mobisense local host');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('title'), NULL, 'Page title');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000001', 'Module Mobisense');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000002', 'Module Mobisense');
