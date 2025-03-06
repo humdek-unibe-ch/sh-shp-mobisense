@@ -27,7 +27,20 @@ class MobisenseController extends BaseController
         if (isset($mode) && !$this->check_acl($mode)) {
             return false;
         }
-        
+        if (isset($mode)) {
+            if ($mode == PAGE_MOBISENSE_MODE_TEST_CONNECTION) {
+                $res = $this->model->test_connection();
+                if(!$res['success']) {
+                    $this->error_msgs = $res['messages'];
+                    $this->fail = true;
+                }else{
+                    $this->success = true;
+                    $this->success_msgs = $res['messages'];
+                }
+            } elseif ($mode == PAGE_MOBISENSE_MODE_PULL_DATA) {
+                $this->model->pull_data(transactionBy_by_user);
+            }
+        }
     }
 
     /**
