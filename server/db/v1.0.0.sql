@@ -18,8 +18,6 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, '
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_ssh_port', get_field_type_id('number'), '0');
 -- add new filed `mobisense_ssh_user` from type text
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_ssh_user', get_field_type_id('text'), '0');
--- add new filed `mobisense_ssh_key` from type password
-INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_ssh_key', get_field_type_id('password'), '0');
 -- add new filed `mobisense_db_name` from type text
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_db_name', get_field_type_id('text'), '0');
 -- add new filed `mobisense_db_port` from type number
@@ -38,7 +36,6 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, '
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_server_ip'), NULL, 'Mobisense server IP');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_ssh_port'), 2711, 'Mobisense server ssh port');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_ssh_user'), NULL, 'Mobisense server ssh user');
-INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_ssh_key'), NULL, 'Mobisense server ssh key');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_db_name'), NULL, 'Mobisense database name');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_db_port'), 5432, 'Mobisense database port');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_db_user'), NULL, 'Mobisense database user');
