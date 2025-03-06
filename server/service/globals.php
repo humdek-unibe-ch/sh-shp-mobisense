@@ -11,6 +11,6 @@
     define('SH_MODULE_MOBISENSE', 'sh_module_mobisense');    
     define('PAGE_MOBISENSE', 'mobisense');  
     /* Page modes */
-    define('PAGE_MOBISENSE_MODE_TEST_CONNECTION', 'test_connection');  
-    define('PAGE_MOBISENSE_MODE_PULL_DATA', 'pull_data');  
+    define('PAGE_MOBISENSE_MODE_TEST_CONNECTION', 'test');  
+    define('PAGE_MOBISENSE_MODE_PULL_DATA', 'pull');  
 ?>
