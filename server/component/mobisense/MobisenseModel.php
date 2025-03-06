@@ -41,6 +41,18 @@ class MobisenseModel extends BaseModel
         $this->mobisense_settings = $this->db->fetch_page_info(SH_MODULE_MOBISENSE);
         $this->private_key_file = __DIR__ . '/../../../auth/ssh_key';
     }
+    
+    /**
+     * Adds a timestamped message to the messages array
+     * 
+     * @param array &$messages Reference to messages array
+     * @param string $message Message to add
+     * @return void
+     */
+    private function add_message(&$messages, $message) {
+        $timestamp = date('Y-m-d H:i:s');
+        $messages[] = "[$timestamp] $message";
+    }
 
     /**
      * Establishes an SSH connection to the Mobisense server
@@ -57,7 +69,7 @@ class MobisenseModel extends BaseModel
             if (!is_readable($this->private_key_file)) {
                 throw new Exception("SSH key file is not readable: {$this->private_key_file}");
             }
-            $messages[] = "SSH key file found and is readable";
+            $this->add_message($messages, "SSH key file found and is readable");
 
             // Initialize SSH connection
             $ssh = new SSH2(
@@ -70,11 +82,11 @@ class MobisenseModel extends BaseModel
             if (!$ssh->login($this->mobisense_settings['mobisense_ssh_user'], $privateKey)) {
                 throw new Exception("SSH authentication failed");
             }
-            $messages[] = "SSH connection established successfully";
+            $this->add_message($messages, "SSH connection established successfully");
             
             return $ssh;
         } catch (Exception $e) {
-            $messages[] = "Error: " . $e->getMessage();
+            $this->add_message($messages, "Error: " . $e->getMessage());
             return false;
         }
     }
@@ -104,7 +116,7 @@ class MobisenseModel extends BaseModel
             
             return $result;
         } catch (Exception $e) {
-            $messages[] = "Error: " . $e->getMessage();
+            $this->add_message($messages, "Error: " . $e->getMessage());
             return false;
         }
     }
@@ -141,7 +153,7 @@ class MobisenseModel extends BaseModel
             
             return $data;
         } catch (Exception $e) {
-            $messages[] = "Error: " . $e->getMessage();
+            $this->add_message($messages, "Error: " . $e->getMessage());
             return false;
         }
     }
@@ -172,7 +184,7 @@ class MobisenseModel extends BaseModel
         $data = $this->execute_postgres_query($ssh, $query, $messages);
         
         if ($data !== false) {
-            $messages[] = "The data was pulled successfully!";
+            $this->add_message($messages, "The data was pulled successfully!");
         } else {
             $success = false;
         }
@@ -268,7 +280,7 @@ class MobisenseModel extends BaseModel
         // Test database connection with a simple command
         $result = $this->execute_postgres_command($ssh, '\\q', $messages);
         if ($result !== false) {
-            $messages[] = "Database connection test successful";
+            $this->add_message($messages, "Database connection test successful");
         } else {
             $success = false;
         }
