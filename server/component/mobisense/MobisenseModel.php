@@ -42,9 +42,80 @@ class MobisenseModel extends BaseModel
      * Pulls data from the Mobisense database
      * 
      * @param string $transactionBy User identifier for the transaction
-     * @return void
+     * @return array Array containing query results and status messages
      */
-    public function pull_data($transactionBy) {}
+    public function pull_data($transactionBy) {
+        $mobisense_server_ip = $this->mobisense_settings['mobisense_server_ip'];
+        $mobisense_ssh_port = $this->mobisense_settings['mobisense_ssh_port'];
+        $mobisense_ssh_user = $this->mobisense_settings['mobisense_ssh_user'];
+        $mobisense_db_name = $this->mobisense_settings['mobisense_db_name'];
+        $mobisense_db_port = $this->mobisense_settings['mobisense_db_port'];
+        $mobisense_db_user = $this->mobisense_settings['mobisense_db_user'];
+        $mobisense_db_password = $this->mobisense_settings['mobisense_db_password'];
+        $mobisense_local_host = $this->mobisense_settings['mobisense_local_host'];
+        $private_key_file = __DIR__ . '/../../../auth/ssh_key';
+
+        $messages = [];
+        $success = true;
+        $data = [];
+
+        try {
+            // Check if SSH key exists and is readable
+            if (!file_exists($private_key_file)) {
+                throw new Exception("SSH key file not found at: $private_key_file");
+            }
+            if (!is_readable($private_key_file)) {
+                throw new Exception("SSH key file is not readable: $private_key_file");
+            }
+            $messages[] = "SSH key file found and is readable";
+
+            // Initialize SSH connection
+            $ssh = new SSH2($mobisense_server_ip, $mobisense_ssh_port);
+            $privateKey = PublicKeyLoader::load(file_get_contents($private_key_file));
+            
+            // Attempt SSH login
+            if (!$ssh->login($mobisense_ssh_user, $privateKey)) {
+                throw new Exception("SSH authentication failed");
+            }
+            $messages[] = "SSH connection established successfully";
+
+            // Execute the query and get results in CSV format for easy parsing
+            $query = "select * from last_upload";
+            $command = "PGPASSWORD='$mobisense_db_password' psql -h $mobisense_local_host -p $mobisense_db_port -U $mobisense_db_user -d $mobisense_db_name -c \"\\copy ($query) to stdout with csv header\"";
+            $result = $ssh->exec($command);
+            
+            if ($ssh->getExitStatus() === 0) {
+                $messages[] = "The data was pulled successfully!";
+                
+                // Parse CSV result into array
+                $lines = explode("\n", trim($result));
+                if (count($lines) > 0) {
+                    $headers = str_getcsv($lines[0]);
+                    foreach (array_slice($lines, 1) as $line) {
+                        if (trim($line) !== '') {
+                            $row = array_combine($headers, str_getcsv($line));
+                            $data[] = $row;
+                        }
+                    }
+                }
+                
+                // For now, just dump the data
+                // var_dump($data);
+            } else {
+                throw new Exception("Query execution failed: " . $result);
+            }
+
+        } catch (Exception $e) {
+            $success = false;
+            $messages[] = "Error: " . $e->getMessage();
+        }
+
+        return array(
+            'success' => $success,
+            'messages' => $messages,
+            'data' => $data
+        );
+    }
 
     /**
      * Creates a Mobisense control panel with standard buttons

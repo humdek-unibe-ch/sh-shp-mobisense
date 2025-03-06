@@ -38,7 +38,14 @@ class MobisenseController extends BaseController
                     $this->success_msgs = $res['messages'];
                 }
             } elseif ($mode == PAGE_MOBISENSE_MODE_PULL_DATA) {
-                $this->model->pull_data(transactionBy_by_user);
+                $res = $this->model->pull_data(transactionBy_by_user);
+                if(!$res['success']) {
+                    $this->error_msgs = $res['messages'];
+                    $this->fail = true;
+                }else{
+                    $this->success = true;
+                    $this->success_msgs = $res['messages'];
+                }
             }
         }
     }
