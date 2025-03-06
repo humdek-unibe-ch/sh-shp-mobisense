@@ -177,6 +177,16 @@ class MobisenseModel extends BaseModel
             $success = false;
         }
 
+        $this->transaction->add_transaction(
+            transactionTypes_insert,
+            $transactionBy,
+            $_SESSION['id_user'],
+            PAGE_MOBISENSE,
+            null,
+            "",
+            "Manual pull Mobisense Data for all users"
+        );
+
         return [
             'success' => $success,
             'messages' => $messages,
