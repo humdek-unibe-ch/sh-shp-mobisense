@@ -32,6 +32,8 @@ INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, '
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_db_password', get_field_type_id('password'), '0');
 -- add new filed `mobisense_pull_data` from type checkbox
 INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_pull_data', get_field_type_id('checkbox'), '0');
+-- add new filed `panel` from type panel
+INSERT IGNORE INTO `fields` (`id`, `name`, `id_type`, `display`) VALUES (NULL, 'mobisense_panel', get_field_type_id('panel'), '0');
 
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_server_ip'), NULL, 'Mobisense server IP');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_ssh_port'), 2711, 'Mobisense server ssh port');
@@ -43,6 +45,16 @@ INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_db_password'), NULL, 'Mobisense database password');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_pull_data'), NULL, 'Mobisense pull data - if enabled the job will pull the data from mobisense; if disabled the job will skip this step');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_local_host'), NULL, 'Mobisense local host');
+INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('mobisense_panel'), NULL, 'Mobisense panel with extra functionality');
 INSERT IGNORE INTO `pageType_fields` (`id_pageType`, `id_fields`, `default_value`, `help`) VALUES ((SELECT id FROM pageType WHERE `name` = 'sh_module_mobisense' LIMIT 0,1), get_field_id('title'), NULL, 'Page title');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000001', 'Module Mobisense');
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page_values, get_field_id('title'), '0000000002', 'Module Mobisense');
+
+-- register hooks
+-- add hook to load panels for Mobisense module page
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`)
+VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'field-mobisense_panel-edit', 'Output Mobisense panel', 'CmsView', 'create_field_form_item', 'MobisenseHooks', 'outputFieldPanel');
+
+-- add hook to load panels for Mobisense module page
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`)
+VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'field-mobisense_panel-view', 'Output Mobisense panel', 'CmsView', 'create_field_item', 'MobisenseHooks', 'outputFieldPanel');
