@@ -44,7 +44,13 @@ class MobisenseHooks extends BaseHooks
             "children" => array(
                 new BaseStyleComponent("button", array(
                     "label" => "Test Connection",
-                    "url" => $this->get_link_url("moduleR", array()),
+                    "url" => $this->get_link_url("cmsUpdate", array(
+                        "type" => "teset_mobisense_connection",
+                        "mode" => "update",
+                        "pid" => $this->router->get_param_by_name("pid"),
+                        "sid" => null,
+                        "ssid" => null
+                    )),
                     "type" => "secondary",
                     "css" => "mr-3 btn-sm"
                 )),
