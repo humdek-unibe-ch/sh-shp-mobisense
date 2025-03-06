@@ -16,6 +16,11 @@ class MobisenseHooks extends BaseHooks
     /* Constructors ***********************************************************/
 
     /**
+     * The mobisenseModel 
+     */
+    private $mobisenseModel;
+
+    /**
      * The constructor creates an instance of the hooks.
      * @param object $services
      *  The service handler instance which holds all services
@@ -25,48 +30,10 @@ class MobisenseHooks extends BaseHooks
     public function __construct($services, $params = array())
     {
         parent::__construct($services, $params);
+        $this->mobisenseModel = new MobisenseModel($services, -1);
     }
 
     /* Private Methods *********************************************************/
-
-    /**
-     * Output select Rserve panel with its button functionality
-     * @return object
-     * Return instance of BaseStyleComponent -> select style
-     */
-    private function outputMobisensePanel()
-    {
-        return new BaseStyleComponent("card", array(
-            "type" => "secondary",
-            "is_expanded" => true,
-            "is_collapsible" => true,
-            "title" => "Mobisense Panel",
-            "children" => array(
-                new BaseStyleComponent("button", array(
-                    "label" => "Test Connection",
-                    "url" => $this->get_link_url(PAGE_MOBISENSE, array(
-                        "mode" => PAGE_MOBISENSE_MODE_TEST_CONNECTION,
-                    )),
-                    "type" => "secondary",
-                    "css" => "mr-3 btn-sm"
-                )),
-                new BaseStyleComponent("button", array(
-                    "label" => "Pull Data",
-                    "url" => $this->get_link_url(PAGE_MOBISENSE, array(
-                        "mode" => PAGE_MOBISENSE_MODE_PULL_DATA,
-                    )),
-                    "type" => "secondary",
-                    "css" => "mr-3 btn-sm"
-                )),
-                // new BaseStyleComponent("button", array(
-                //     "label" => "Create  New R Script",
-                //     "url" => $this->get_link_url("moduleRMode", array("mode" => INSERT)),
-                //     "type" => "secondary",
-                //     "css" => "mr-3 btn-sm"
-                // ))
-            )
-        ));
-    }
 
     /* Public Methods *********************************************************/
 
@@ -82,7 +49,7 @@ class MobisenseHooks extends BaseHooks
         $field = $this->get_param_by_name($args, 'field');
         $res = $this->execute_private_method($args);
         if ($field['name'] == 'mobisense_panel') {
-            $selectField = $this->outputMobisensePanel();
+            $selectField = $this->get_mobisense_panel();
             if ($selectField && $res) {
                 $children = $res->get_view()->get_children();
                 $children[] = $selectField;
@@ -90,6 +57,11 @@ class MobisenseHooks extends BaseHooks
             }
         }
         return $res;
+    }
+
+    public function get_mobisense_panel()
+    {
+        return $this->mobisenseModel->create_mobisense_panel();
     }
 
     /**

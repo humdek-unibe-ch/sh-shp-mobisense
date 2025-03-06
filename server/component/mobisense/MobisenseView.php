@@ -52,6 +52,8 @@ class MobisenseView extends BaseView
     public function output_content()
     {
         require __DIR__ . "/tpl_mobisense_alerts.php";
+        $button_panel = $this->model->create_mobisense_panel(array("css" => "m-3"));
+        $button_panel->output_content();
     }
 
     public function output_content_mobile()
@@ -68,75 +70,5 @@ class MobisenseView extends BaseView
         $this->output_controller_alerts_success();
     }
 
-    /**
-     * Get js include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @return array
-     *  An array of js include files the component requires.
-     */
-    public function get_js_includes($local = array())
-    {
-        if (empty($local)) {
-            if (DEBUG) {
-                $local = array(__DIR__ . "/js/rserve.js");
-            } else {
-                $local = array(__DIR__ . "/../../../js/ext/rserve.min.js?v=" . rtrim(shell_exec("git describe --tags")));
-            }
-        }
-        return parent::get_js_includes($local);
-    }
-
-    /**
-     * Get css include files required for this component. This overrides the
-     * parent implementation.
-     *
-     * @return array
-     *  An array of css include files the component requires.
-     */
-    public function get_css_includes($local = array())
-    {
-        if (empty($local)) {
-            if (DEBUG) {
-                $local = array(__DIR__ . "/css/rserve.css");
-            } else {
-                $local = array(__DIR__ . "/../../../css/ext/rserve.min.css?v=" . rtrim(shell_exec("git describe --tags")));
-            }
-        }
-        return parent::get_css_includes($local);
-    }
-
-    /**
-     * Render the sidebar buttons
-     */
-    public function output_side_buttons()
-    {
-        //show create button
-        $createButton = new BaseStyleComponent("button", array(
-            "label" => "Create New R Script",
-            "url" => $this->model->get_link_url("MobisenseMode", array("mode" => INSERT)),
-            "type" => "secondary",
-            "css" => "d-block mb-3",
-        ));
-        $createButton->output_content();
-    }
-
-    /**
-     * render the page content
-     */
-    public function output_page_content()
-    {
-        require __DIR__ . "/tpl_Mobisense_table.php";
-    }
-
-    /**
-     * Render the rows for the scripts
-     */
-    public function output_scripts_rows()
-    {
-        foreach ($this->model->get_scripts() as $script) {
-            require __DIR__ . "/tpl_Mobisense_row.php";
-        }
-    }
 }
 ?>

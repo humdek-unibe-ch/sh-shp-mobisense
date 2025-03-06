@@ -4,6 +4,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <div class = "m-3">
-    alerts
     <?php $this->output_alert(); ?>
 </div>

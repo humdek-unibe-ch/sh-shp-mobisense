@@ -50,6 +50,44 @@ class MobisenseModel extends BaseModel
      */
     public function pull_data($transactionBy) {}
 
+    /**
+     * Creates a Mobisense control panel with standard buttons
+     * @param array $options Additional options for the panel
+     * @return BaseStyleComponent The panel component
+     */
+    public function create_mobisense_panel($options = array()) {
+        $default_options = array(
+            "type" => "secondary",
+            "is_expanded" => true,
+            "is_collapsible" => true,
+            "title" => "Mobisense Panel",
+            "css" => "",
+        );
+        
+        $panel_options = array_merge($default_options, $options);
+        
+        return new BaseStyleComponent("card", array_merge($panel_options, array(
+            "children" => array(
+                new BaseStyleComponent("button", array(
+                    "label" => "Test Connection",
+                    "url" => $this->get_link_url(PAGE_MOBISENSE, array(
+                        "mode" => PAGE_MOBISENSE_MODE_TEST_CONNECTION,
+                    )),
+                    "type" => "secondary",
+                    "css" => "mr-3 btn-sm"
+                )),
+                new BaseStyleComponent("button", array(
+                    "label" => "Pull Data",
+                    "url" => $this->get_link_url(PAGE_MOBISENSE, array(
+                        "mode" => PAGE_MOBISENSE_MODE_PULL_DATA,
+                    )),
+                    "type" => "secondary",
+                    "css" => "mr-3 btn-sm"
+                ))
+            )
+        )));
+    }
+
     public function test_connection(): array
     {
         $mobisense_server_ip = $this->mobisense_settings['mobisense_server_ip'];
