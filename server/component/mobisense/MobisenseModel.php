@@ -10,27 +10,27 @@ use phpseclib3\Net\SSH2;
 use phpseclib3\Crypt\PublicKeyLoader;
 
 /**
- * This class is used to prepare all API calls related to Mobisense
+ * MobisenseModel class
+ * 
+ * Handles the business logic for the Mobisense plugin, including SSH connections,
+ * database operations, and UI component generation.
+ * 
+ * @package    SelfHelp
+ * @subpackage Mobisense
  */
 class MobisenseModel extends BaseModel
 {
 
-    /* Private Properties *****************************************************/
-
     /**
-     * The settings for the Mobisense instance
+     * @var array Mobisense configuration settings
      */
     private $mobisense_settings;
 
-
-    /* Constructors ***********************************************************/
-
     /**
-     * The constructor.
-     *
-     * @param array $services
-     *  An associative array holding the different available services. See the
-     *  class definition BasePage for a list of all services.
+     * Constructor for the MobisenseModel
+     * 
+     * @param array $services An associative array holding the different available services.
+     * @param array $params Additional parameters for the model
      */
     public function __construct($services, $params)
     {
@@ -38,22 +38,25 @@ class MobisenseModel extends BaseModel
         $this->mobisense_settings = $this->db->fetch_page_info(SH_MODULE_MOBISENSE);
     }
 
-    /* Private Methods *********************************************************/
-
-    /* Public Methods *********************************************************/
-
-
     /**
-     * Pull all Mobisense data for all the users
-     * @param string $transactionBy
-     * Who initiated the action
+     * Pulls data from the Mobisense database
+     * 
+     * @param string $transactionBy User identifier for the transaction
+     * @return void
      */
     public function pull_data($transactionBy) {}
 
     /**
      * Creates a Mobisense control panel with standard buttons
-     * @param array $options Additional options for the panel
-     * @return BaseStyleComponent The panel component
+     * 
+     * @param array $options Additional options for customizing the panel
+     *                      Supported options:
+     *                      - type: string Panel type (default: "secondary")
+     *                      - is_expanded: bool Whether panel is expanded (default: true)
+     *                      - is_collapsible: bool Whether panel can collapse (default: true)
+     *                      - title: string Panel title (default: "Mobisense Panel")
+     *                      - css: string Additional CSS classes (default: "")
+     * @return BaseStyleComponent The configured panel component
      */
     public function create_mobisense_panel($options = array()) {
         $default_options = array(
@@ -88,6 +91,19 @@ class MobisenseModel extends BaseModel
         )));
     }
 
+    /**
+     * Tests the connection to the Mobisense server and database
+     * 
+     * This method performs a series of connection tests:
+     * 1. Checks if the SSH key file exists and is readable
+     * 2. Attempts to establish an SSH connection to the server
+     * 3. Tests the PostgreSQL database connection
+     * 
+     * @return array Associative array containing:
+     *               - success: bool Whether all connection tests passed
+     *               - messages: array List of status messages from each test
+     * @throws Exception If SSH key file is missing or unreadable
+     */
     public function test_connection(): array
     {
         $mobisense_server_ip = $this->mobisense_settings['mobisense_server_ip'];
@@ -98,7 +114,6 @@ class MobisenseModel extends BaseModel
         $mobisense_db_user = $this->mobisense_settings['mobisense_db_user'];
         $mobisense_db_password = $this->mobisense_settings['mobisense_db_password'];
         $mobisense_local_host = $this->mobisense_settings['mobisense_local_host'];
-        $mobisense_pull_data = $this->mobisense_settings['mobisense_pull_data'];
         $private_key_file = __DIR__ . '/../../../auth/ssh_key';
 
         $messages = [];
