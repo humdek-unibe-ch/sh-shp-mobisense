@@ -191,9 +191,16 @@ class MobisenseModel extends BaseModel
                         INNER JOIN validation_codes vc ON (u.id = vc.id_users)";
         $user_codes = $this->db->query_db($sql_user_codes);
 
+        // Format codes for IN clause - each code wrapped in single quotes and comma-separated
+        $formatted_codes = [];
+        foreach ($user_codes as $row) {
+            $formatted_codes[] = "'" . $row['code'] . "'";
+        }
+
+        $codes_string = implode(', ', $formatted_codes);
+
         // Execute query
-        $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60 AS minutes_difference, COALESCE(p.recording, TRUE) AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ('6z25e4k1')";
-        // $sql_postgres = "select * from last_upload";
+        $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60 AS minutes_difference, COALESCE(p.recording, TRUE) AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ($codes_string)";
         $data = $this->execute_postgres_query($ssh, $sql_postgres, $messages);
 
         if ($data !== false) {
