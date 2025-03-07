@@ -205,6 +205,27 @@ class MobisenseModel extends BaseModel
 
         if ($data !== false) {
             $this->add_message($messages, "The data was pulled successfully!");
+            
+            // Create a mapping of codes to id_users for quick lookup
+            $code_to_id_map = [];
+            foreach ($user_codes as $row) {
+                $code_to_id_map[$row['code']] = $row['id_users'];
+            }
+            
+            // Process the data to add id_users and remove userid
+            $processed_data = [];
+            foreach ($data as $row) {
+                // Add id_users based on the code mapping
+                if (isset($row['userid']) && isset($code_to_id_map[$row['userid']])) {
+                    $row['id_users'] = $code_to_id_map[$row['userid']];
+                    // Remove the userid column
+                    unset($row['userid']);
+                }
+                $processed_data[] = $row;
+            }
+            
+            // Replace the original data with the processed data
+            $data = $processed_data;
         } else {
             $success = false;
         }
