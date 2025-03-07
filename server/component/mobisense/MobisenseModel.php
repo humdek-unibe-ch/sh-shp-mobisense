@@ -205,16 +205,16 @@ class MobisenseModel extends BaseModel
 
         if ($data !== false) {
             $this->add_message($messages, "The data was pulled successfully!");
-            
+
             // Create a mapping of codes to id_users for quick lookup
             $code_to_id_map = [];
             foreach ($user_codes as $row) {
                 $code_to_id_map[$row['code']] = $row['id_users'];
             }
-            
+
             // Track which users have data from PostgreSQL
             $processed_user_ids = [];
-            
+
             // Process the data to add id_users and remove userid
             $processed_data = [];
             foreach ($data as $row) {
@@ -228,7 +228,7 @@ class MobisenseModel extends BaseModel
                 }
                 $processed_data[] = $row;
             }
-            
+
             // Add entries for users without PostgreSQL data
             foreach ($user_codes as $user) {
                 $id_users = $user['id_users'];
@@ -245,11 +245,13 @@ class MobisenseModel extends BaseModel
                     $processed_data[] = $default_record;
                 }
             }
-                        
+
             $data = $processed_data;
-            $success = $this->user_input->save_data($transactionBy, DATA_TABLE_MOBISENSE_LAST_UPDATE, $data);
-            if(!$success) {
-                $this->add_message($messages, "Failed to save data to database.");
+            foreach ($data as $row) {
+                $success = $this->user_input->save_data($transactionBy, DATA_TABLE_MOBISENSE_LAST_UPDATE, $row);
+                if (!$success) {
+                    $this->add_message($messages, "Failed to save data to database for user " . $row['id_users']);
+                }
             }
         } else {
             $success = false;
