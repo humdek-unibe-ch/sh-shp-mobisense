@@ -13,4 +13,6 @@
     /* Page modes */
     define('PAGE_MOBISENSE_MODE_TEST_CONNECTION', 'test');  
     define('PAGE_MOBISENSE_MODE_PULL_DATA', 'pull');  
+    /* Data Tables */
+    define('DATA_TABLE_MOBISENSE_LAST_UPDATE', 'mobisense_last_update');  
 ?>

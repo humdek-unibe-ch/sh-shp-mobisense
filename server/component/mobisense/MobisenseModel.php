@@ -200,7 +200,7 @@ class MobisenseModel extends BaseModel
         $codes_string = implode(', ', $formatted_codes);
 
         // Execute query
-        $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60 AS minutes_difference, CASE WHEN COALESCE(p.recording, TRUE) THEN 1 ELSE 0 END AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ($codes_string)";
+        $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, ROUND(EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60) AS minutes_difference, CASE WHEN COALESCE(p.recording, TRUE) THEN 1 ELSE 0 END AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ($codes_string)";
         $data = $this->execute_postgres_query($ssh, $sql_postgres, $messages);
 
         if ($data !== false) {
@@ -223,9 +223,12 @@ class MobisenseModel extends BaseModel
                 }
                 $processed_data[] = $row;
             }
-            
-            // Replace the original data with the processed data
+                        
             $data = $processed_data;
+            $success = $this->user_input->save_data(transactionBy, DATA_TABLE_MOBISENSE_LAST_UPDATE, $data);
+            if(!$success)    {
+                $this->add_message($messages, "Failed to save data to database.");
+            }
         } else {
             $success = false;
         }
