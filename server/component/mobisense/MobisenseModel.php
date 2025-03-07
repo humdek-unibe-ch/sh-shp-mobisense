@@ -1,10 +1,12 @@
 <?php
+
 /**
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
- require_once __DIR__ . "/../../../../../component/BaseModel.php";
- require_once __DIR__ . "/../../ext/phpseclib/vendor/autoload.php"; 
+require_once __DIR__ . "/../../../../../component/BaseModel.php";
+require_once __DIR__ . "/../../ext/phpseclib/vendor/autoload.php";
+
 use phpseclib3\Net\SSH2;
 use phpseclib3\Crypt\PublicKeyLoader;
 
@@ -23,7 +25,7 @@ class MobisenseModel extends BaseModel
      * @var array Mobisense configuration settings
      */
     private $mobisense_settings;
-    
+
     /**
      * @var string Path to the SSH private key file
      */
@@ -41,7 +43,7 @@ class MobisenseModel extends BaseModel
         $this->mobisense_settings = $this->db->fetch_page_info(SH_MODULE_MOBISENSE);
         $this->private_key_file = __DIR__ . '/../../../auth/ssh_key';
     }
-    
+
     /**
      * Adds a timestamped message to the messages array
      * 
@@ -49,7 +51,8 @@ class MobisenseModel extends BaseModel
      * @param string $message Message to add
      * @return void
      */
-    private function add_message(&$messages, $message) {
+    private function add_message(&$messages, $message)
+    {
         $timestamp = date('Y-m-d H:i:s');
         $messages[] = "[$timestamp] $message";
     }
@@ -60,7 +63,8 @@ class MobisenseModel extends BaseModel
      * @param array $messages Reference to an array for storing status/error messages
      * @return SSH2|false SSH connection object on success, false on failure
      */
-    private function connect_ssh(&$messages) {
+    private function connect_ssh(&$messages)
+    {
         try {
             // Check if SSH key exists and is readable
             if (!file_exists($this->private_key_file)) {
@@ -73,24 +77,24 @@ class MobisenseModel extends BaseModel
 
             // Initialize SSH connection
             $ssh = new SSH2(
-                $this->mobisense_settings['mobisense_server_ip'], 
+                $this->mobisense_settings['mobisense_server_ip'],
                 $this->mobisense_settings['mobisense_ssh_port']
             );
             $privateKey = PublicKeyLoader::load(file_get_contents($this->private_key_file));
-            
+
             // Attempt SSH login
             if (!$ssh->login($this->mobisense_settings['mobisense_ssh_user'], $privateKey)) {
                 throw new Exception("SSH authentication failed");
             }
             $this->add_message($messages, "SSH connection established successfully");
-            
+
             return $ssh;
         } catch (Exception $e) {
             $this->add_message($messages, "Error: " . $e->getMessage());
             return false;
         }
     }
-    
+
     /**
      * Executes a PostgreSQL command via SSH
      * 
@@ -99,28 +103,29 @@ class MobisenseModel extends BaseModel
      * @param array $messages Reference to an array for storing status/error messages
      * @return string|false Command output on success, false on failure
      */
-    private function execute_postgres_command($ssh, $command, &$messages) {
+    private function execute_postgres_command($ssh, $command, &$messages)
+    {
         try {
             $pgCommand = "PGPASSWORD='{$this->mobisense_settings['mobisense_db_password']}' " .
-                         "psql -h {$this->mobisense_settings['mobisense_local_host']} " .
-                         "-p {$this->mobisense_settings['mobisense_db_port']} " .
-                         "-U {$this->mobisense_settings['mobisense_db_user']} " .
-                         "-d {$this->mobisense_settings['mobisense_db_name']} " .
-                         "-c \"$command\"";
-            
+                "psql -h {$this->mobisense_settings['mobisense_local_host']} " .
+                "-p {$this->mobisense_settings['mobisense_db_port']} " .
+                "-U {$this->mobisense_settings['mobisense_db_user']} " .
+                "-d {$this->mobisense_settings['mobisense_db_name']} " .
+                "-c \"$command\"";
+
             $result = $ssh->exec($pgCommand);
-            
+
             if ($ssh->getExitStatus() !== 0) {
                 throw new Exception("PostgreSQL command execution failed: " . $result);
             }
-            
+
             return $result;
         } catch (Exception $e) {
             $this->add_message($messages, "Error: " . $e->getMessage());
             return false;
         }
     }
-    
+
     /**
      * Executes a PostgreSQL query and returns results in CSV format
      * 
@@ -129,15 +134,16 @@ class MobisenseModel extends BaseModel
      * @param array $messages Reference to an array for storing status/error messages
      * @return array|false Parsed query results on success, false on failure
      */
-    private function execute_postgres_query($ssh, $query, &$messages) {
+    private function execute_postgres_query($ssh, $query, &$messages)
+    {
         try {
             $command = "\\copy ($query) to stdout with csv header";
             $result = $this->execute_postgres_command($ssh, $command, $messages);
-            
+
             if ($result === false) {
                 return false;
             }
-            
+
             // Parse CSV result into array
             $data = [];
             $lines = explode("\n", trim($result));
@@ -150,7 +156,7 @@ class MobisenseModel extends BaseModel
                     }
                 }
             }
-            
+
             return $data;
         } catch (Exception $e) {
             $this->add_message($messages, "Error: " . $e->getMessage());
@@ -164,7 +170,8 @@ class MobisenseModel extends BaseModel
      * @param string $transactionBy User identifier for the transaction
      * @return array Array containing query results and status messages
      */
-    public function pull_data($transactionBy) {
+    public function pull_data($transactionBy)
+    {
         $messages = [];
         $success = true;
         $data = [];
@@ -179,10 +186,16 @@ class MobisenseModel extends BaseModel
             ];
         }
 
+        $sql_user_codes = "SELECT vc.`code`
+                        FROM users u
+                        INNER JOIN validation_codes vc ON (u.id = vc.id_users)";
+        $user_codes = $this->db->query_db($sql_user_codes);
+
         // Execute query
-        $query = "select * from last_upload";
-        $data = $this->execute_postgres_query($ssh, $query, $messages);
-        
+        $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60 AS minutes_difference, COALESCE(p.recording, TRUE) AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ('6z25e4k1')";
+        // $sql_postgres = "select * from last_upload";
+        $data = $this->execute_postgres_query($ssh, $sql_postgres, $messages);
+
         if ($data !== false) {
             $this->add_message($messages, "The data was pulled successfully!");
         } else {
@@ -218,7 +231,8 @@ class MobisenseModel extends BaseModel
      *                      - css: string Additional CSS classes (default: "")
      * @return BaseStyleComponent The configured panel component
      */
-    public function create_mobisense_panel($options = array()) {
+    public function create_mobisense_panel($options = array())
+    {
         $default_options = array(
             "type" => "secondary",
             "is_expanded" => true,
@@ -226,9 +240,9 @@ class MobisenseModel extends BaseModel
             "title" => "Mobisense Panel",
             "css" => "",
         );
-        
+
         $panel_options = array_merge($default_options, $options);
-        
+
         return new BaseStyleComponent("card", array_merge($panel_options, array(
             "children" => array(
                 new BaseStyleComponent("button", array(
@@ -264,7 +278,8 @@ class MobisenseModel extends BaseModel
      *               - messages: array List of status messages from each test
      * @throws Exception If SSH key file is missing or unreadable
      */
-    public function test_connection(): array {
+    public function test_connection(): array
+    {
         $messages = [];
         $success = true;
 
@@ -291,4 +306,3 @@ class MobisenseModel extends BaseModel
         ];
     }
 }
-?>
