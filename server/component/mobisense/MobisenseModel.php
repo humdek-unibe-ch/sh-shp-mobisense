@@ -212,21 +212,43 @@ class MobisenseModel extends BaseModel
                 $code_to_id_map[$row['code']] = $row['id_users'];
             }
             
+            // Track which users have data from PostgreSQL
+            $processed_user_ids = [];
+            
             // Process the data to add id_users and remove userid
             $processed_data = [];
             foreach ($data as $row) {
                 // Add id_users based on the code mapping
                 if (isset($row['userid']) && isset($code_to_id_map[$row['userid']])) {
-                    $row['id_users'] = $code_to_id_map[$row['userid']];
+                    $id_users = $code_to_id_map[$row['userid']];
+                    $row['id_users'] = $id_users;
+                    $processed_user_ids[] = $id_users; // Track that we've processed this user
                     // Remove the userid column
                     unset($row['userid']);
                 }
                 $processed_data[] = $row;
             }
+            
+            // Add entries for users without PostgreSQL data
+            foreach ($user_codes as $user) {
+                $id_users = $user['id_users'];
+                if (!in_array($id_users, $processed_user_ids)) {
+                    // Create a record with default values for users without PostgreSQL data
+                    $default_record = [
+                        'id_users' => $id_users,
+                        'day_time' => null,
+                        'time_difference' => null,
+                        'days_difference' => -1,
+                        'minutes_difference' => -1,
+                        'recording' => 0
+                    ];
+                    $processed_data[] = $default_record;
+                }
+            }
                         
             $data = $processed_data;
-            $success = $this->user_input->save_data(transactionBy, DATA_TABLE_MOBISENSE_LAST_UPDATE, $data);
-            if(!$success)    {
+            $success = $this->user_input->save_data($transactionBy, DATA_TABLE_MOBISENSE_LAST_UPDATE, $data);
+            if(!$success) {
                 $this->add_message($messages, "Failed to save data to database.");
             }
         } else {
