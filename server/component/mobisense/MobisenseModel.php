@@ -200,7 +200,8 @@ class MobisenseModel extends BaseModel
         $codes_string = implode(', ', $formatted_codes);
 
         // Execute query
-        $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, ROUND(EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60) AS minutes_difference, CASE WHEN COALESCE(p.recording, TRUE) THEN 1 ELSE 0 END AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ($codes_string)";
+        // $sql_postgres = "SELECT lu.*, NOW() - lu.day_time AS time_difference, EXTRACT(DAY FROM (NOW() - lu.day_time)) AS days_difference, ROUND(EXTRACT(EPOCH FROM (NOW() - lu.day_time)) / 60) AS minutes_difference, CASE WHEN COALESCE(p.recording, TRUE) THEN 1 ELSE 0 END AS recording FROM last_upload lu LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = lu.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE WHERE lu.userid IN ($codes_string)";
+        $sql_postgres = "SELECT c.userid, c.last_insert AS coordinates_last_insert, NOW() - to_timestamp(c.last_insert / 1e9) AS coordinates_time_difference, EXTRACT(DAY FROM (NOW() - to_timestamp(c.last_insert / 1e9))) AS coordinates_days_difference, ROUND(EXTRACT(EPOCH FROM (NOW() - to_timestamp(c.last_insert / 1e9))) / 60) AS coordinates_minutes_difference, lu.last_upload_day_time AS last_upload_insert, NOW() - lu.last_upload_day_time AS upload_time_difference, EXTRACT(DAY FROM (NOW() - lu.last_upload_day_time)) AS upload_days_difference, ROUND(EXTRACT(EPOCH FROM (NOW() - lu.last_upload_day_time)) / 60) AS upload_minutes_difference, CASE WHEN COALESCE(p.recording, TRUE) THEN 1 ELSE 0 END AS recording FROM (SELECT userid, MAX(timestamp) AS last_insert FROM public.coordinates WHERE userid IN ($codes_string) GROUP BY userid) c LEFT JOIN (SELECT userid, MAX(day_time) AS last_upload_day_time FROM public.last_upload GROUP BY userid) lu ON c.userid = lu.userid LEFT JOIN LATERAL (SELECT p.recording FROM pauses p WHERE p.userid = c.userid ORDER BY p.timestamp DESC LIMIT 1) p ON TRUE";
         $data = $this->execute_postgres_query($ssh, $sql_postgres, $messages);
 
         if ($data !== false) {
@@ -236,11 +237,15 @@ class MobisenseModel extends BaseModel
                     // Create a record with default values for users without PostgreSQL data
                     $default_record = [
                         'id_users' => $id_users,
-                        'day_time' => null,
-                        'time_difference' => null,
-                        'days_difference' => -1,
-                        'minutes_difference' => -1,
-                        'recording' => 0
+                        'coordinates_last_insert' => null,
+                        'coordinates_time_difference' => null,
+                        'coordinates_days_difference' => -1,
+                        'coordinates_minutes_difference' => -1,
+                        'last_upload_insert' => null,
+                        'upload_time_difference' => null,
+                        'upload_days_difference' => -1,
+                        'upload_minutes_difference' => -1,
+                        'recording' => -1
                     ];
                     $processed_data[] = $default_record;
                 }
