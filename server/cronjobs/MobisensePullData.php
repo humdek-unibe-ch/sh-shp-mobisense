@@ -57,7 +57,6 @@ class MobisensePullData
      */
     public function pull_data()
     {
-        $debug_start_time = microtime(true);
         $this->mobisenseModel->pull_data(transactionBy_by_cron_job);
         $this->transaction->add_transaction(
             transactionTypes_insert,

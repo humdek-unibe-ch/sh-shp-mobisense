@@ -172,6 +172,13 @@ class MobisenseModel extends BaseModel
      */
     public function pull_data($transactionBy)
     {
+        if (!$this->mobisense_settings['mobisense_pull_data']) {
+            return [
+                'success' => false,
+                'messages' => ['Mobisense pull data is disabled'],
+                'data' => []
+            ];
+        }
         $messages = [];
         $success = true;
         $data = [];
