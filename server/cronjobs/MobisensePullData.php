@@ -7,7 +7,7 @@
 require_once __DIR__ . "/../../../../service/Services.php";
 require_once __DIR__ . "/../../../../service/PageDb.php";
 require_once __DIR__ . "/../../../../service/Transaction.php";
-require_once __DIR__ . "/../component/MobisenseAPI/MobisenseAPIModel.php";
+require_once __DIR__ . "/../component/mobisense/MobisenseModel.php";
 require_once __DIR__ . "/../service/globals.php";
 
 /**
@@ -36,9 +36,9 @@ class MobisensePullData
     private $transaction = null;
 
     /**
-     * Mobisense API model
+     * Mobisense Model
      */
-    private $api;
+    private $mobisenseModel;
 
     /**
      * The constructor.
@@ -47,16 +47,16 @@ class MobisensePullData
     {
         $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->transaction = new Transaction($this->db);
-        $this->api = new MobisenseAPIModel(new Services(false), array("uid" => null));
+        $this->mobisenseModel = new MobisenseModel(new Services(false), array("uid" => null));
     }
 
     /**
      * Check the mailing queue and send the mails if there are mails in the queue which should be sent
      */
-    public function pull_data_all_users()
+    public function pull_data()
     {
         $debug_start_time = microtime(true);
-        $this->api->pull_data_all_users(transactionBy_by_cron_job);
+        $this->mobisenseModel->pull_data(transactionBy_by_cron_job);
         $this->transaction->add_transaction(
             transactionTypes_insert,
             transactionBy_by_cron_job,
@@ -68,8 +68,8 @@ class MobisensePullData
         );
     }
 }
-
+ob_start();
 $MobisensePullData = new MobisensePullData();
-$MobisensePullData->pull_data_all_users();
-
+$MobisensePullData->pull_data();
+ob_end_clean();
 ?>

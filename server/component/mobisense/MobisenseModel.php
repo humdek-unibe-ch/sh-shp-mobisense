@@ -265,7 +265,7 @@ class MobisenseModel extends BaseModel
         $this->transaction->add_transaction(
             transactionTypes_insert,
             $transactionBy,
-            $_SESSION['id_user'],
+            isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null,
             PAGE_MOBISENSE,
             null,
             "",
