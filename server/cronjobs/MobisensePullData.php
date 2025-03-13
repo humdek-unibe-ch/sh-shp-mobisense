@@ -7,7 +7,7 @@ ob_start();
 require_once __DIR__ . "/../../../../service/Services.php";
 require_once __DIR__ . "/../../../../service/PageDb.php";
 require_once __DIR__ . "/../../../../service/Transaction.php";
-require_once __DIR__ . "/../../../../service/Clockwork.php";
+// require_once __DIR__ . "/../../../../service/Clockwork.php";
 require_once __DIR__ . "/../component/mobisense/MobisenseModel.php";
 require_once __DIR__ . "/../service/globals.php";
 
@@ -46,7 +46,8 @@ class MobisensePullData
      */
     public function __construct()
     {
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, new ClockworkService());
+        // $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, new ClockworkService());
+        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->transaction = new Transaction($this->db);
         $this->mobisenseModel = new MobisenseModel(new Services(false), array("uid" => null));
     }
