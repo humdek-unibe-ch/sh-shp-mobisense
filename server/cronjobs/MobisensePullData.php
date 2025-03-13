@@ -1,12 +1,13 @@
 <?php
+ob_start();
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
-?>
-<?php
+
 require_once __DIR__ . "/../../../../service/Services.php";
 require_once __DIR__ . "/../../../../service/PageDb.php";
 require_once __DIR__ . "/../../../../service/Transaction.php";
+require_once __DIR__ . "/../../../../service/Clockwork.php";
 require_once __DIR__ . "/../component/mobisense/MobisenseModel.php";
 require_once __DIR__ . "/../service/globals.php";
 
@@ -45,7 +46,7 @@ class MobisensePullData
      */
     public function __construct()
     {
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, new ClockworkService());
         $this->transaction = new Transaction($this->db);
         $this->mobisenseModel = new MobisenseModel(new Services(false), array("uid" => null));
     }
@@ -68,8 +69,12 @@ class MobisensePullData
         );
     }
 }
-ob_start();
+
+// Execute the script with output buffering to prevent any output
+
 $MobisensePullData = new MobisensePullData();
 $MobisensePullData->pull_data();
 ob_end_clean();
-?>
+
+// Ensure clean exit with no trailing newlines
+exit(0);
