@@ -28,3 +28,13 @@ The plugin requires an SSH key for secure connection to the Mobisense database s
    - Other users should have no access to the file
    - The file should be read-only for authorized users
 3. The corresponding public key must be installed on the Mobisense server
+
+
+# Cronjob
+
+The plugin requires a cronjob to pull the data from the Mobisense database server:
+```
+0 * * * * php --define apc.enable_cli=1 /home/user/selfhelp/server/plugins/Mobisense/server/cronjobs/MobisensePullData.php
+```
+
+Please set a proper path to the cronjob
