@@ -15,7 +15,7 @@ This is a SelfhelpPlugin that is used for [Mobisense](https://apps.apple.com/us/
 
 # Requirements
 
- - SelfHelp v7.2.2+ 
+ - SelfHelp v7.3.0+ 
  - `php8.1-pgsql` and `php8.1-ssh2`:  `sudo apt-get install php8.1-pgsql php8.1-ssh2`
 
 # SSH Key Setup
