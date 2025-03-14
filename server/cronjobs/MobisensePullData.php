@@ -7,7 +7,7 @@ ob_start();
 require_once __DIR__ . "/../../../../service/Services.php";
 require_once __DIR__ . "/../../../../service/PageDb.php";
 require_once __DIR__ . "/../../../../service/Transaction.php";
-// require_once __DIR__ . "/../../../../service/Clockwork.php";
+require_once __DIR__ . "/../../../../service/Clockwork.php";
 require_once __DIR__ . "/../component/mobisense/MobisenseModel.php";
 require_once __DIR__ . "/../service/globals.php";
 
@@ -42,12 +42,18 @@ class MobisensePullData
     private $mobisenseModel;
 
     /**
+     * Clockwork service
+     */
+    public $clockwork;
+
+    /**
      * The constructor.
      */
     public function __construct()
     {
-        // $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, new ClockworkService());
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        $this->clockwork = new ClockworkService();
+        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, $this->clockwork);
+        // $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
         $this->transaction = new Transaction($this->db);
         $this->mobisenseModel = new MobisenseModel(new Services(false), array("uid" => null));
     }
@@ -74,6 +80,7 @@ class MobisensePullData
 
 $MobisensePullData = new MobisensePullData();
 $MobisensePullData->pull_data();
+$MobisensePullData->clockwork->getClockwork()->requestProcessed();
 ob_end_clean();
 
 // Ensure clean exit with no trailing newlines
