@@ -79,8 +79,10 @@ class MobisensePullData
 // Execute the script with output buffering to prevent any output
 
 $MobisensePullData = new MobisensePullData();
+$MobisensePullData->clockwork->startEvent("[MobisensePullData][pull_data]");
 $MobisensePullData->pull_data();
-$MobisensePullData->clockwork->getClockwork()->requestProcessed();
+$MobisensePullData->clockwork->endEvent("[MobisensePullData][pull_data]");
+$MobisensePullData->clockwork->requestProcessed();
 ob_end_clean();
 
 // Ensure clean exit with no trailing newlines
