@@ -1,3 +1,8 @@
+# v1.0.1
+### Bug Fixes
+
+ - fix cronjob logging time in transactions
+
 # v1.0.0
 ### New Features
 
