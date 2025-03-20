@@ -7,7 +7,11 @@ ob_start();
 require_once __DIR__ . "/../../../../service/Services.php";
 require_once __DIR__ . "/../../../../service/PageDb.php";
 require_once __DIR__ . "/../../../../service/Transaction.php";
-require_once __DIR__ . "/../../../../service/Clockwork.php";
+// Only include Clockwork if it exists
+$clockworkPath = __DIR__ . "/../../../../service/Clockwork.php";
+if (file_exists($clockworkPath)) {
+    require_once $clockworkPath;
+}
 require_once __DIR__ . "/../component/mobisense/MobisenseModel.php";
 require_once __DIR__ . "/../service/globals.php";
 
@@ -51,9 +55,16 @@ class MobisensePullData
      */
     public function __construct()
     {
-        $this->clockwork = new ClockworkService();
-        $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, $this->clockwork);
-        // $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        // Initialize Clockwork only if the service exists
+        $this->clockwork = class_exists('ClockworkService') ? new ClockworkService() : null;
+        
+        // If Clockwork exists, pass it to PageDb, otherwise use the alternative constructor
+        if ($this->clockwork) {
+            $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW, $this->clockwork);
+        } else {
+            $this->db = new PageDb(DBSERVER, DBNAME, DBUSER, DBPW);
+        }
+        
         $this->transaction = new Transaction($this->db);
         $this->mobisenseModel = new MobisenseModel(new Services(false), array("uid" => null));
     }
@@ -80,10 +91,16 @@ class MobisensePullData
 // Execute the script with output buffering to prevent any output
 
 $MobisensePullData = new MobisensePullData();
-$MobisensePullData->clockwork->startEvent("[MobisensePullData][pull_data]");
-$MobisensePullData->pull_data();
-$MobisensePullData->clockwork->endEvent("[MobisensePullData][pull_data]");
-$MobisensePullData->clockwork->requestProcessed();
+// Only use Clockwork if it's available
+if ($MobisensePullData->clockwork) {
+    $MobisensePullData->clockwork->startEvent("[MobisensePullData][pull_data]");
+    $MobisensePullData->pull_data();
+    $MobisensePullData->clockwork->endEvent("[MobisensePullData][pull_data]");
+    $MobisensePullData->clockwork->requestProcessed();
+} else {
+    // Execute without Clockwork instrumentation
+    $MobisensePullData->pull_data();
+}
 ob_end_clean();
 
 // Ensure clean exit with no trailing newlines

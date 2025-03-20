@@ -1,11 +1,13 @@
+# v1.0.2
+### New Features
+ - add support for the plugin for SelfHelp v7.0.0+. Check if `Clockwork` is available.
+
 # v1.0.1
 ### Bug Fixes
-
  - fix cronjob logging time in transactions
 
 # v1.0.0
 ### New Features
-
  - Mobisense plugin
  - add page `sh_global_mobisense`
   - field `mobisense_server_ip`
