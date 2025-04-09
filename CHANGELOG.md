@@ -1,3 +1,7 @@
+# v1.0.3
+### Bug Fixes
+ - make table `last_upload` leading in the query and then add the `coordinates` table data in the query
+
 # v1.0.2
 ### New Features
  - add support for the plugin for SelfHelp v7.0.0+. Check if `Clockwork` is available.
