@@ -1,3 +1,7 @@
+# v1.0.4
+### Bug Fixes
+ - pull the data even if `last_upload` is not initialized
+
 # v1.0.3
 ### Bug Fixes
  - make table `last_upload` leading in the query and then add the `coordinates` table data in the query
