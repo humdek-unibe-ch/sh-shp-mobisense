@@ -232,8 +232,8 @@ class MobisenseModel extends BaseModel
                     $processed_user_ids[] = $id_users; // Track that we've processed this user
                     // Remove the userid column
                     unset($row['userid']);
-                }
-                $processed_data[] = $row;
+                    $processed_data[] = $row;
+                }                
             }
 
             // Add entries for users without PostgreSQL data

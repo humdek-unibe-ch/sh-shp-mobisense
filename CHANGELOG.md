@@ -1,3 +1,7 @@
+# v1.0.5
+### Bug Fixes
+ - pull data only for users with `userid` from mobisense DB
+
 # v1.0.4
 ### Bug Fixes
  - pull the data even if `last_upload` is not initialized
