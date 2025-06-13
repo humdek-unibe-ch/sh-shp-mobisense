@@ -1,4 +1,4 @@
-# v1.0.6 Not released
+# v1.0.6
  - Add transaction log for a pull with the postgres query
  - increase timeout to 10 minutes
 
