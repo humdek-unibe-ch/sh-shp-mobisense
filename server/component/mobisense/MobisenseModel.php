@@ -75,11 +75,14 @@ class MobisenseModel extends BaseModel
             }
             $this->add_message($messages, "SSH key file found and is readable");
 
+            set_time_limit(600);
+
             // Initialize SSH connection
             $ssh = new SSH2(
                 $this->mobisense_settings['mobisense_server_ip'],
                 $this->mobisense_settings['mobisense_ssh_port']
             );
+            $ssh->setTimeout(600); // Set 10-minute timeout
             $privateKey = PublicKeyLoader::load(file_get_contents($this->private_key_file));
 
             // Attempt SSH login
