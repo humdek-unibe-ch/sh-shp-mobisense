@@ -1,3 +1,6 @@
+# v1.0.6 Not released
+ - Add transaction log for a pull with the postgres query
+
 # v1.0.5
 ### Bug Fixes
  - pull data only for users with `userid` from mobisense DB

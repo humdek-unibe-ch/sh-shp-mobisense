@@ -275,7 +275,7 @@ class MobisenseModel extends BaseModel
             PAGE_MOBISENSE,
             null,
             "",
-            "Manual pull Mobisense Data for all users"
+            "Pull Mobisense Data for all users. Query: " . $sql_postgres
         );
 
         return [
